@@ -1,112 +1,188 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../components"
 
-Item {
-    id: autoScreen
+Page {
+    id: root
+    background: Rectangle { color: window.cBackground }
 
-    // Safety check
-    Rectangle {
-        anchors.fill: parent
-        color: "#aa000000"
-        z: 10
-        visible: agvBackend.mode !== "AUTO"
+    header: Header {
+        title: "AGV-04"
+        mode: "AUTO"
+        connected: agvBackend.connected
+        battery: agvBackend.batteryLevel
 
-        Label {
-            anchors.centerIn: parent
-            text: "PLEASE SWITCH TO AUTO MODE"
-            color: "white"
-            font.bold: true
+        RowLayout {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 10
+            StatusBadge { text: "AUTO MODE"; color: window.cGreen; textColor: "#000000" }
         }
     }
 
-    GridLayout {
+    contentItem: RowLayout {
         anchors.fill: parent
-        anchors.margins: 20
-        columns: 2
+        anchors.margins: 10
+        spacing: 20
 
-        // Start Button
-        Button {
-            Layout.fillWidth: true
+        // Left: Controls
+        ColumnLayout {
             Layout.fillHeight: true
-            Layout.columnSpan: 1
+            Layout.preferredWidth: parent.width * 0.45
+            spacing: 15
 
-            background: Rectangle {
-                color: "#00c853" // Green
-                radius: 10
+            // Start
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 140
+                color: window.cGreen
+                radius: 12
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    Label { text: "▶️"; font.pixelSize: 48; Layout.alignment: Qt.AlignHCenter }
+                    Label { text: "START"; color: "#ffffff"; font.bold: true; font.pixelSize: 24; Layout.alignment: Qt.AlignHCenter }
+                }
+                MouseArea { anchors.fill: parent; onClicked: console.log("Start Auto") }
             }
-            contentItem: Text {
-                text: "START"
-                color: "white"
-                font.pixelSize: 32
-                font.bold: true
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
+
+            // Pause & Stop
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 120
+                spacing: 15
+
+                Rectangle {
+                    Layout.fillWidth: true; Layout.fillHeight: true
+                    color: window.cOrange
+                    radius: 12
+                     ColumnLayout {
+                        anchors.centerIn: parent
+                        Label { text: "⏸️"; font.pixelSize: 32; Layout.alignment: Qt.AlignHCenter }
+                        Label { text: "PAUSE"; color: "#ffffff"; font.bold: true; font.pixelSize: 18; Layout.alignment: Qt.AlignHCenter }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true; Layout.fillHeight: true
+                    color: window.cRed
+                    radius: 12
+                     ColumnLayout {
+                        anchors.centerIn: parent
+                        Label { text: "⏹️"; font.pixelSize: 32; Layout.alignment: Qt.AlignHCenter }
+                        Label { text: "STOP"; color: "#ffffff"; font.bold: true; font.pixelSize: 18; Layout.alignment: Qt.AlignHCenter }
+                    }
+                }
             }
         }
 
-        // Status Panel
-        Rectangle {
-            Layout.fillWidth: true
+        // Right: Status & Steps
+        ColumnLayout {
             Layout.fillHeight: true
-            color: "#1e1e1e"
-            radius: 10
+            Layout.fillWidth: true
+            spacing: 15
 
-            ColumnLayout {
-                anchors.centerIn: parent
-                Label {
-                    text: "CURRENT STEP"
-                    color: "#b0bec5"
+            // Auto Control Toggle Panel
+            Rectangle {
+                Layout.fillWidth: true
+                height: 60
+                color: window.cCardBg
+                radius: 8
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 15
+
+                    Column {
+                        Label { text: "Auto Control"; color: "#ffffff"; font.bold: true }
+                        Label { text: agvBackend.systemReady ? "System Ready" : "Not Ready"; color: agvBackend.systemReady ? window.cBlue : window.cTextSecondary; font.pixelSize: 12 }
+                    }
+
+                    Item { Layout.fillWidth: true }
+
+                    Switch {
+                        checked: true
+                    }
                 }
-                Label {
-                    text: agvBackend.currentStep
-                    color: "white"
-                    font.pixelSize: 64
-                    font.bold: true
-                    Layout.alignment: Qt.AlignHCenter
+            }
+
+            // Current Step Panel
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                color: window.cCardBg
+                radius: 12
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 10
+
+                    Label { text: "CURRENT STEP"; color: window.cTextSecondary; font.pixelSize: 12 }
+                    Label { text: agvBackend.currentStep; color: "#ffffff"; font.pixelSize: 64; font.bold: true }
+                    Label { text: agvBackend.stepDescription; color: window.cTextSecondary; font.pixelSize: 16 }
+
+                    // Progress Bar
+                    Rectangle {
+                        Layout.preferredWidth: 200
+                        height: 4
+                        color: window.cBlue
+                        radius: 2
+                    }
                 }
-                Label {
-                    text: "Pick Station B" // Mockup
-                    color: "#b0bec5"
-                    Layout.alignment: Qt.AlignHCenter
+            }
+
+            // Status Cards
+            RowLayout {
+                Layout.fillWidth: true
+                height: 80
+                spacing: 10
+
+                Rectangle {
+                    Layout.fillWidth: true; Layout.fillHeight: true
+                    color: window.cCardBg; radius: 8
+                    RowLayout {
+                        anchors.centerIn: parent
+                        Label { text: agvBackend.frontClear && agvBackend.rearClear ? "✅" : "⚠️"; font.pixelSize: 24 }
+                        Column {
+                            Label { text: "Safety"; color: "#ffffff"; font.bold: true }
+                            Label { text: "Zone Clear"; color: window.cTextSecondary; font.pixelSize: 10 }
+                        }
+                    }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true; Layout.fillHeight: true
+                    color: window.cCardBg; radius: 8
+                     RowLayout {
+                        anchors.centerIn: parent
+                        Label { text: "📶"; font.pixelSize: 24 }
+                        Column {
+                            Label { text: "Comms"; color: "#ffffff"; font.bold: true }
+                            Label { text: "Connected"; color: window.cTextSecondary; font.pixelSize: 10 }
+                        }
+                    }
                 }
             }
         }
+    }
 
-        // Pause Button
-        Button {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            background: Rectangle {
-                color: "#ff6d00" // Orange
-                radius: 10
-            }
-            contentItem: Text {
-                text: "PAUSE"
-                color: "white"
-                font.pixelSize: 24
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+    footer: Footer {
+        NavButton {
+            text: "HOME"
+            iconText: "🏠"
+            onClicked: window.goHome()
         }
 
-        // Stop Button
-        Button {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+        NavButton {
+            text: "BACK"
+            iconText: "⬅️"
+            onClicked: window.popScreen()
+        }
 
-            background: Rectangle {
-                color: "#d50000" // Red
-                radius: 10
-            }
-            contentItem: Text {
-                text: "STOP"
-                color: "white"
-                font.pixelSize: 24
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-            }
+        NavButton {
+            text: "ALARMS"
+            iconText: "🔔"
+             onClicked: window.navigateTo("screens/AlarmScreen.qml")
         }
     }
 }

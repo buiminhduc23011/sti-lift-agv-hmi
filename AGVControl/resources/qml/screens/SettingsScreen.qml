@@ -1,55 +1,276 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../components"
 
-Item {
-    id: settingsScreen
+Page {
+    id: root
+    background: Rectangle { color: window.cBackground }
 
-    ColumnLayout {
+    header: Header {
+        title: "AGV-04"
+        mode: "MANUAL"
+        connected: agvBackend.connected
+        battery: agvBackend.batteryLevel
+
+        RowLayout {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 10
+            StatusBadge { text: "MANUAL MODE"; color: window.cGreen; textColor: "#ffffff" }
+        }
+    }
+
+    contentItem: RowLayout {
         anchors.fill: parent
-        anchors.margins: 40
+        anchors.margins: 10
         spacing: 20
 
-        Label {
-            text: "SPEED CONFIGURATION"
-            color: "#b0bec5"
-            font.bold: true
-        }
+        // Left Column: Speed Configuration
+        ColumnLayout {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            spacing: 10
 
-        RowLayout {
-            Label { text: "Manual Speed Limit"; color: "white"; Layout.preferredWidth: 150 }
-            Slider {
+            Label { text: "SPEED CONFIGURATION"; color: window.cTextSecondary; font.bold: true; font.pixelSize: 12 }
+
+            // Manual Speed
+            Rectangle {
                 Layout.fillWidth: true
-                from: 0.1; to: 2.0
-                value: 1.2
-            }
-            Label { text: "1.2 m/s"; color: "white" }
-        }
+                Layout.fillHeight: true
+                color: window.cCardBg
+                radius: 12
 
-        RowLayout {
-            Label { text: "Auto Max Limit"; color: "white"; Layout.preferredWidth: 150 }
-            Slider {
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: "MANUAL SPEED"; color: "#ffffff"; font.bold: true; Layout.fillWidth: true }
+                        Label { text: "m/s"; color: window.cBlue }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        Button {
+                            text: "−"
+                            Layout.preferredWidth: 60
+                            Layout.preferredHeight: 60
+                            background: Rectangle { color: "#2d2d2d"; radius: 8 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#ffffff"
+                                font.pixelSize: 24
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 60
+                            color: "#1a1d26"
+                            radius: 8
+                            Label {
+                                anchors.centerIn: parent
+                                text: "1.2"
+                                color: "#ffffff"
+                                font.pixelSize: 32
+                                font.bold: true
+                            }
+                        }
+
+                        Button {
+                            text: "+"
+                            Layout.preferredWidth: 60
+                            Layout.preferredHeight: 60
+                            background: Rectangle { color: "#2d2d2d"; radius: 8 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#ffffff"
+                                font.pixelSize: 24
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Auto Max Limit
+            Rectangle {
                 Layout.fillWidth: true
-                from: 0.5; to: 3.0
-                value: 2.5
+                Layout.fillHeight: true
+                color: window.cCardBg
+                radius: 12
+
+                 ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: "AUTO MAX LIMIT"; color: "#ffffff"; font.bold: true; Layout.fillWidth: true }
+                        Label { text: "m/s"; color: window.cBlue }
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 10
+
+                        Button {
+                            text: "−"
+                            Layout.preferredWidth: 60
+                            Layout.preferredHeight: 60
+                            background: Rectangle { color: "#2d2d2d"; radius: 8 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#ffffff"
+                                font.pixelSize: 24
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.preferredHeight: 60
+                            color: "#1a1d26"
+                            radius: 8
+                            Label {
+                                anchors.centerIn: parent
+                                text: "2.5"
+                                color: "#ffffff"
+                                font.pixelSize: 32
+                                font.bold: true
+                            }
+                        }
+
+                        Button {
+                            text: "+"
+                            Layout.preferredWidth: 60
+                            Layout.preferredHeight: 60
+                            background: Rectangle { color: "#2d2d2d"; radius: 8 }
+                            contentItem: Text {
+                                text: parent.text
+                                color: "#ffffff"
+                                font.pixelSize: 24
+                                horizontalAlignment: Text.AlignHCenter
+                                verticalAlignment: Text.AlignVCenter
+                            }
+                        }
+                    }
+                }
             }
-            Label { text: "2.5 m/s"; color: "white" }
         }
 
-        Item { Layout.fillHeight: true } // Spacer
+        // Right Column: Dynamics & System
+        ColumnLayout {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+            spacing: 10
 
-        Label {
-            text: "DYNAMICS & SYSTEM"
-            color: "#b0bec5"
-            font.bold: true
+            Label { text: "DYNAMICS & SYSTEM"; color: window.cTextSecondary; font.bold: true; font.pixelSize: 12 }
+
+            // Accel Profile
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                color: window.cCardBg
+                radius: 12
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 10
+
+                    Label { text: "ACCEL PROFILE"; color: "#ffffff"; font.bold: true }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 0
+
+                        Repeater {
+                            model: ["SOFT", "NORMAL", "HARD"]
+                            delegate: Rectangle {
+                                Layout.fillWidth: true
+                                height: 50
+                                color: agvBackend.accelProfile === modelData ? window.cBlue : "#1a1d26"
+                                border.width: 1
+                                border.color: "#2d2d2d"
+
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: modelData
+                                    color: agvBackend.accelProfile === modelData ? "#ffffff" : window.cTextSecondary
+                                    font.bold: true
+                                }
+                                MouseArea {
+                                    anchors.fill: parent
+                                    onClicked: agvBackend.accelProfile = modelData
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // System Info (User Level & PLC)
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                color: window.cCardBg
+                radius: 12
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: "🆔 USER LEVEL"; color: "#ffffff"; font.bold: true }
+                        Item { Layout.fillWidth: true }
+                        Label { text: agvBackend.userLevel; color: window.cBlue; font.bold: true }
+                    }
+
+                     Rectangle { Layout.fillWidth: true; height: 1; color: "#2d2d2d" }
+
+                     RowLayout {
+                        Layout.fillWidth: true
+                        Label { text: "💾 PLC STATUS"; color: "#ffffff"; font.bold: true }
+                        Item { Layout.fillWidth: true }
+                        StatusBadge { text: agvBackend.plcStatus ? "CONNECTED" : "DISCONNECTED"; color: "transparent"; textColor: window.cGreen }
+                    }
+                }
+            }
+        }
+    }
+
+    footer: Footer {
+        NavButton {
+            text: "BACK"
+            iconText: "⬅️"
+            onClicked: window.popScreen()
         }
 
-        RowLayout {
-            Label { text: "Accel Profile"; color: "white"; Layout.preferredWidth: 150 }
-            ComboBox {
-                model: ["Soft", "Normal", "Hard"]
-                currentIndex: 1
-            }
+        NavButton {
+            text: "HOME"
+            iconText: "🏠"
+            isActive: true // Visually highlighted in image
+            onClicked: window.goHome()
+        }
+
+        NavButton {
+            text: "ALARM (" + agvBackend.currentAlarmCount + ")"
+            iconText: "🔔"
+            activeColor: window.cRed
+            isActive: agvBackend.currentAlarmCount > 0
+             onClicked: window.navigateTo("screens/AlarmScreen.qml")
         }
     }
 }
