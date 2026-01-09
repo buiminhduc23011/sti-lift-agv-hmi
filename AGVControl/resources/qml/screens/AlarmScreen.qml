@@ -1,82 +1,194 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../components"
 
-Item {
-    id: alarmScreen
+Page {
+    id: root
+    background: Rectangle { color: window.cBackground }
 
-    ColumnLayout {
-        anchors.fill: parent
-        anchors.margins: 20
-        spacing: 10
+    header: Header {
+        title: "AGV-04"
+        mode: agvBackend.mode
+        connected: agvBackend.connected
+        battery: agvBackend.batteryLevel
 
-        Label {
-            text: "ACTIVE ALARMS"
-            color: "#ff1744"
-            font.bold: true
+        RowLayout {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 10
+            StatusBadge { text: "MODE: " + agvBackend.mode; color: window.cGreen; textColor: "#000000" }
+            StatusBadge { text: "FAULT"; color: window.cRed; textColor: "#ffffff"; visible: agvBackend.currentAlarmCount > 0 }
         }
+    }
 
-        ListView {
-            Layout.fillWidth: true
+    // Mock Model
+    ListModel {
+        id: alarmModel
+        ListElement { level: "CRITICAL"; code: "E-102"; msg: "E-STOP PRESSED: REAR PANEL"; time: "10:42:05"; colorCode: "#ff1744" }
+        ListElement { level: "WARN"; code: "W-204"; msg: "PATH OBSTACLE DETECTED"; time: "10:41:15"; colorCode: "#ff9100" }
+        ListElement { level: "INFO"; code: "I-301"; msg: "MAINTENANCE DUE SOON"; time: "08:00:00"; colorCode: "#2979ff" }
+    }
+
+    contentItem: RowLayout {
+        anchors.fill: parent
+        anchors.margins: 10
+        spacing: 20
+
+        // Left: Alarm List
+        ColumnLayout {
             Layout.fillHeight: true
-            clip: true
-            model: ListModel {
-                ListElement { code: "[CRITICAL] E-102"; msg: "E-STOP PRESSED"; time: "10:42:05"; level: "CRITICAL" }
-                ListElement { code: "[WARN] W-204"; msg: "PATH OBSTACLE DETECTED"; time: "10:41:15"; level: "WARN" }
-                ListElement { code: "[INFO] I-301"; msg: "SYSTEM READY"; time: "08:00:00"; level: "INFO" }
-            }
-            delegate: Rectangle {
-                width: parent.width
-                height: 60
-                color: "#1e1e1e"
-                radius: 5
-                border.width: 1
-                border.color: level === "CRITICAL" ? "#ff1744" : (level === "WARN" ? "#ff9100" : "#2979ff")
+            Layout.fillWidth: true
+            spacing: 10
 
-                RowLayout {
-                    anchors.fill: parent
-                    anchors.margins: 10
+            Row {
+                spacing: 10
+                Label { text: "ACTIVE ALARMS"; color: "#ffffff"; font.bold: true; font.pixelSize: 16 }
+                StatusBadge { text: agvBackend.currentAlarmCount.toString(); color: window.cRed; height: 20 }
+            }
+
+            ListView {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                clip: true
+                model: alarmModel
+                spacing: 10
+
+                delegate: Rectangle {
+                    width: ListView.view.width
+                    height: 60
+                    color: model.colorCode
+                    radius: 8
+                    opacity: 0.2 // Background opacity
 
                     Rectangle {
-                        width: 4; height: parent.height
-                        color: parent.parent.border.color
+                        anchors.fill: parent
+                        color: "transparent"
+                        border.color: model.colorCode
+                        border.width: 1
+                        radius: 8
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: 10
+                            spacing: 15
+
+                            // Icon box
+                            Rectangle {
+                                width: 40; height: 40
+                                color: Qt.lighter(model.colorCode, 1.2)
+                                radius: 8
+                                Label {
+                                    anchors.centerIn: parent
+                                    text: model.level === "CRITICAL" ? "✋" : (model.level === "WARN" ? "⚠️" : "ℹ️")
+                                    font.pixelSize: 20
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+                                Label {
+                                    text: "[" + model.level + "] " + model.code
+                                    color: model.colorCode // Text color matches level
+                                    font.bold: true
+                                }
+                                Label {
+                                    text: model.msg
+                                    color: "#ffffff"
+                                    font.pixelSize: 12
+                                }
+                            }
+
+                            Label {
+                                text: model.time
+                                color: window.cTextSecondary
+                                font.pixelSize: 12
+                            }
+                        }
                     }
-
-                    Column {
-                        Label { text: code; color: parent.parent.parent.border.color; font.bold: true }
-                        Label { text: msg; color: "white" }
-                    }
-
-                    Item { Layout.fillWidth: true }
-
-                    Label { text: time; color: "#757575" }
                 }
             }
         }
 
-        RowLayout {
-            Layout.fillWidth: true
-            Button {
-                text: "ACKNOWLEDGE FAULT"
+        // Right: Acknowledge & Reset
+        ColumnLayout {
+            Layout.fillHeight: true
+            Layout.preferredWidth: 300
+            spacing: 20
+
+            // Acknowledge Button (Big Blue)
+            Rectangle {
                 Layout.fillWidth: true
-                background: Rectangle { color: "#2979ff"; radius: 4 }
-                contentItem: Text { text: parent.text; color: "white"; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter }
-                onClicked: agvBackend.acknowledgeAlarm()
+                Layout.fillHeight: true
+                color: window.cBlue
+                radius: 12
+
+                ColumnLayout {
+                    anchors.centerIn: parent
+                    Label { text: "✅"; font.pixelSize: 48; Layout.alignment: Qt.AlignHCenter }
+                    Label { text: "ACKNOWLEDGE\nFAULT"; color: "#ffffff"; font.bold: true; font.pixelSize: 20; horizontalAlignment: Text.AlignHCenter; Layout.alignment: Qt.AlignHCenter }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: agvBackend.acknowledgeAlarm()
+                }
             }
-            Button {
-                text: "RESET"
+
+            // Reset Button (Darker)
+            Rectangle {
                 Layout.fillWidth: true
-                onClicked: agvBackend.resetSystem()
+                Layout.preferredHeight: 80
+                color: window.cCardBg
+                radius: 12
+
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: 10
+                    Label { text: "🔄"; font.pixelSize: 24 }
+                    Label { text: "RESET"; color: "#ffffff"; font.bold: true; font.pixelSize: 18 }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: agvBackend.resetSystem()
+                }
             }
         }
     }
 
-    // Listen to backend alarms (mockup connection)
-    Connections {
-        target: agvBackend
-        function onNewAlarm(code, message, level) {
-            // In a real app, we would append to the model
-            console.log("New Alarm:", code, message)
+    footer: Footer {
+        NavButton {
+            text: "HOME"
+            iconText: "🏠"
+            onClicked: window.goHome()
+        }
+
+        NavButton {
+            text: "BACK"
+            iconText: "⬅️"
+            onClicked: window.popScreen()
+        }
+
+        // This is the active screen
+        Rectangle {
+            width: 120
+            height: parent.height
+            color: window.cRed
+            Label {
+                anchors.centerIn: parent
+                text: "ALARMS"
+                color: "#ffffff"
+                font.bold: true
+
+                Label {
+                    anchors.bottom: parent.top
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    text: "🔔"
+                    font.pixelSize: 24
+                    anchors.bottomMargin: 5
+                }
+            }
         }
     }
 }
