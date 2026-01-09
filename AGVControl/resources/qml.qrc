@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
+        <file>qml/Main.qml</file>
+        <file>qml/components/NavButton.qml</file>
+        <file>qml/components/StatusBadge.qml</file>
+        <file>qml/components/DashboardCard.qml</file>
+        <file>qml/screens/HomeScreen.qml</file>
+        <file>qml/screens/AlarmScreen.qml</file>
+        <file>qml/screens/ManualScreen.qml</file>
+        <file>qml/screens/AutoScreen.qml</file>
+        <file>qml/screens/SettingsScreen.qml</file>
+    </qresource>
+</RCC>
